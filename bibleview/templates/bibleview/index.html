@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>성경 조회</h1>
+<p>환영합니다! 성경을 검색하거나 구절을 조회하세요.</p>
+<a href="{% url 'bibleview:search' %}">검색하기</a>
+{% endblock %}
