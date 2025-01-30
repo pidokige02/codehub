@@ -1,38 +1,45 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/bible.css' %}">
+{% endblock %}
 
 {% block content %}
-<h2>성경 구절 목록</h2>
+<!-- 제목 -->
+<h2 class="bible-title">{{ book }} {{ chapter }}장 [{{ version_code }}]</h2>
 
-<!-- 번역본 선택 드롭다운 -->
-<form method="GET">
-    <label for="version">번역본 선택:</label>
-    <select name="version" id="version" onchange="this.form.submit()">
-        <option value="">전체 보기</option>
-        {% for version in versions %}
-            <option value="{{ version.code }}" {% if version.code == request.GET.version %}selected{% endif %}>
-                {{ version.name }}
-            </option>
-        {% endfor %}
-    </select>
-</form>
-
-<!-- 성경 구절 테이블 -->
-<table border="1">
-    <tr>
-        <th>책</th>
-        <th>장</th>
-        <th>절</th>
-        <th>말씀</th>
-        <th>번역본</th>
-    </tr>
+<!-- 성경 구절 목록 -->
+<ul class="bible-verses">
     {% for verse in verses %}
-    <tr>
-        <td>{{ verse.book }}</td>
-        <td>{{ verse.chapter }}</td>
-        <td>{{ verse.verse }}</td>
-        <td>{{ verse.text }}</td>
-        <td>{{ verse.version.code }}</td>
-    </tr>
+        <li>
+            <strong>{{ verse.verse }}.</strong> {{ verse.text }}
+        </li>
     {% endfor %}
-</table>
+</ul>
+
+<!-- 장 이동 네비게이션 -->
+<div class="chapter-navigation">
+    {% if chapter > 1 %}
+        <a href="{% url 'bibleview:bible_list' book=book chapter=chapter|add:'-1' %}" class="nav-button">이전</a>
+    {% endif %}
+
+    <!-- 페이지네이션 -->
+    <span class="page-numbers">
+        {% for num in total_chapters %}
+            {% if num == "..." %}
+                <span class="ellipsis">...</span>
+            {% elif num == chapter %}
+                <strong class="current-page">{{ num }}</strong>
+            {% else %}
+                <a href="{% url 'bibleview:bible_list' book=book chapter=num %}" class="page-link">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+    </span>
+
+    {% if chapter < total_chapters|last %}
+        <a href="{% url 'bibleview:bible_list' book=book chapter=chapter|add:'1' %}" class="nav-button">다음</a>
+    {% endif %}
+</div>
+
 {% endblock %}

@@ -5,5 +5,5 @@ app_name = 'bibleview'  # URL 네임스페이스 설정
 
 urlpatterns = [
     path('upload/', upload_excel, name='upload_excel'),
-    path('view/', bible_list, name='bible_list'),
+    path("view/<str:book>/<int:chapter>/", bible_list, name="bible_list"),
 ]

@@ -8,7 +8,7 @@
     <div class="navbar">
       <div class="menu">
         <a href="/">Home</a>
-        <a href="/bible/view/">Bible</a>
+        <a href="{% url 'bibleview:bible_list' book='Genesis' chapter=1 %}">Bible</a>
         <a href="/bible/upload/">Upload</a>
         <a href="/about/">About</a>
       </div>

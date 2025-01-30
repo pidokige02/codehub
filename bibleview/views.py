@@ -57,13 +57,55 @@ def upload_excel(request):
 
     return render(request, 'bibleview/upload_excel.html', {'form': form})
 
-def bible_list(request):
-    versions = BibleVersion.objects.all()
-    selected_version = request.GET.get('version', None)
 
-    if selected_version:
-        verses = BibleVerse.objects.filter(version__code=selected_version).order_by('book', 'chapter', 'verse')
-    else:
-        verses = BibleVerse.objects.all().order_by('book', 'chapter', 'verse')
+def bible_list(request, book, chapter):
+    # 해당 책과 장의 모든 구절 가져오기
+    verses = BibleVerse.objects.filter(book=book, chapter=chapter).order_by("verse")
 
-    return render(request, 'bibleview/bible_list.html', {'versions': versions, 'verses': verses})
+    # 해당 책의 모든 장 번호 가져오기
+    total_chapters = BibleVerse.objects.filter(book=book).values_list("chapter", flat=True).distinct().order_by("chapter")
+
+    # 성경 버전 가져오기
+    version_code = verses.first().version.code if verses.exists() else "개역한글"
+
+    # 페이지네이션을 위한 챕터 목록 만들기
+    def get_chapter_pagination(chapters, current_chapter):
+        chapters = list(chapters)  # QuerySet을 리스트로 변환
+        max_display = 10  # 한 번에 표시할 최대 개수
+
+        if len(chapters) <= max_display:  # 전체 개수가 적으면 그냥 표시
+            return chapters
+
+        result = []
+        first, last = chapters[0], chapters[-1]
+
+        # 항상 첫 번째 챕터 추가
+        result.append(first)
+
+        if current_chapter > 6:
+            result.append("...")  # 앞부분 축약
+
+        # 현재 장을 중심으로 몇 개만 보여주기
+        for num in range(current_chapter - 4, current_chapter + 5):
+            if first < num < last:
+                result.append(num)
+
+        if current_chapter < last - 5:
+            result.append("...")  # 뒷부분 축약
+
+        # 항상 마지막 챕터 추가
+        result.append(last)
+        return result
+
+    paginated_chapters = get_chapter_pagination(total_chapters, chapter)
+
+    # 해당 책과 장의 모든 구절 가져오기
+    verses = BibleVerse.objects.filter(book=book, chapter=chapter).order_by("verse")
+
+    return render(request,"bibleview/bible_list.html", {
+        "book": book,
+        "chapter": chapter,
+        "verses": verses,
+        "total_chapters": paginated_chapters,  # UI에서 축약된 챕터 리스트 사용
+        "version_code": version_code
+    })
