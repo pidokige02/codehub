@@ -21,7 +21,7 @@
 <!-- 장 이동 네비게이션 -->
 <div class="chapter-navigation">
     {% if chapter > 1 %}
-        <a href="{% url 'bibleview:bible_list' book=book chapter=chapter|add:'-1' %}" class="nav-button">이전</a>
+        <a href="{% url 'bibleview:bible_list' book=book chapter=chapter|add:'-1' %}?version_code={{ version_code }}" class="nav-button">이전</a>
     {% endif %}
 
     <!-- 페이지네이션 -->
@@ -32,14 +32,70 @@
             {% elif num == chapter %}
                 <strong class="current-page">{{ num }}</strong>
             {% else %}
-                <a href="{% url 'bibleview:bible_list' book=book chapter=num %}" class="page-link">{{ num }}</a>
+                <a href="{% url 'bibleview:bible_list' book=book chapter=num %}?version_code={{ version_code }}" class="page-link">{{ num }}</a>
             {% endif %}
         {% endfor %}
     </span>
 
     {% if chapter < total_chapters|last %}
-        <a href="{% url 'bibleview:bible_list' book=book chapter=chapter|add:'1' %}" class="nav-button">다음</a>
+        <a href="{% url 'bibleview:bible_list' book=book chapter=chapter|add:'1' %}?version_code={{ version_code }}" class="nav-button">다음</a>
     {% endif %}
 </div>
 
+<!-- 성경 선택 UI -->
+<div class="bible-selector">
+    <form method="get" id="bibleForm">
+        <!-- 성경 버전 선택 -->
+        <select name="version_code" id="versionSelect">
+            {% for version in versions %}
+                <option value="{{ version.code }}" {% if version.code == version_code %}selected{% endif %}>
+                    {{ version.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- 책 선택 -->
+        <select name="book" id="bookSelect">
+            {% for book_option in books %}
+                <option value="{{ book_option }}" {% if book_option == book %}selected{% endif %}>
+                    {{ book_option }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- 장 선택 (숫자 입력 필드로 변경) -->
+        <input type="number" name="chapter" id="chapterInput" min="1" max="{{ total_chapters|last }}" value="{{ chapter }}">
+
+
+        <!-- 읽기 버튼 -->
+        <button type="button" onclick="goToBible()">읽기</button>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function goToBible() {
+    var book = document.getElementById("bookSelect").value;
+    var chapter = document.getElementById("chapterInput").value;  // 변경된 ID 반영
+    var version = document.getElementById("versionSelect").value;
+
+    // 장(chapter)이 올바른 숫자인지 확인 (1 이상)
+    chapter = parseInt(chapter, 10);  // 숫자로 변환
+    if (isNaN(chapter) || chapter < 1) {
+        alert("올바른 장(chapter) 번호를 입력하세요.");
+        return;
+    }
+
+    // URL 인코딩 처리 (한글 깨짐 방지)
+    var encodedBook = encodeURIComponent(book);
+
+    // 새로운 URL 구성
+    var newUrl = `/bible/view/${encodedBook}/${chapter}/?version_code=${version}`;
+
+    // 페이지 이동
+    window.location.href = newUrl;
+}
+</script>
 {% endblock %}

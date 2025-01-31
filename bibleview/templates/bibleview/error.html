@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="error-container">
+    <h2>오류 발생</h2>
+    <p>{{ error }}</p>
+    <a href="{% url 'bibleview:bible_list' book='Genesis' chapter=1 %}" class="home-button">처음으로 돌아가기</a>
+</div>
+
+<style>
+    .error-container {
+        text-align: center;
+        padding: 50px;
+    }
+    .home-button {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    .home-button:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock %}

@@ -121,8 +121,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
+# 프로젝트 루트 경로에 별도의 static 디렉터리를 두는 경우
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # 프로젝트 루트에 있는 static 디렉터리 포함
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

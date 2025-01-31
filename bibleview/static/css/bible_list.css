@@ -47,3 +47,19 @@
     padding: 6px 12px;
     color: blue;
 }
+
+.bible-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+}
+
+.bible-selector select, .bible-selector button {
+    padding: 5px 10px;
+    font-size: 14px;
+}
