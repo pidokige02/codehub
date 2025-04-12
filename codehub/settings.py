@@ -41,7 +41,8 @@ INSTALLED_APPS = [
 
     # application
     'home',
-    'bibleview'
+    'bibleview',
+    'kakao'
 ]
 
 MIDDLEWARE = [
