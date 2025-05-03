@@ -8,11 +8,24 @@
     <div class="navbar">
       <div class="menu">
         <a href="/">Home</a>
-        <a href="{% url 'bibleview:bible_list' book='Genesis' chapter=1 %}">Bible</a>
-        <a href="/bible/upload/">Upload</a>
+
+        <div class="dropdown">
+          <a href="{% url 'bibleview:bible_list' book='Genesis' chapter=1 %}">Bible</a>
+          <div class="dropdown-content">
+            <a href="/bible/upload/">Upload</a>
+          </div>
+        </div>
+
+        <div class="dropdown">
+          <a href="#">Kakao</a>
+          <div class="dropdown-content">
+            <a href="/kakao/search/book/">API Test</a>
+          </div>
+        </div>
+
         <a href="/about/">About</a>
       </div>
-     </div>
+    </div>
 
     {% block content %} {% endblock %}
     {% block extra_scripts %}{% endblock %}

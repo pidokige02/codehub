@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Kakao 책 검색</h1>
+  <input id="bookName" value="" type="text" placeholder="책 제목을 입력하세요">
+  <button id="search">검색</button>
+
+  <div id="bookdata"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $("#search").click(function () {
+        const query = $("#bookName").val();
+
+        $.ajax({
+          method: "GET",
+          url: "/kakao/api/book_search/",
+          data: { query: query }
+        })
+        .done(function (msg) {
+          if (msg.documents.length === 0) {
+            $("#bookdata").html("<p>검색 결과가 없습니다.</p>");
+            return;
+          }
+
+          const book = msg.documents[0];
+          $("#bookdata").html(`
+            <strong>${book.title}</strong><br>
+            <img src="${book.thumbnail}" alt="책 이미지"><br>
+            <p>${book.contents}</p>
+          `);
+        })
+        .fail(function () {
+          $("#bookdata").html("<p>오류가 발생했습니다.</p>");
+        });
+      });
+    });
+  </script>
+{% endblock %}

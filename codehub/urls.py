@@ -22,4 +22,5 @@ urlpatterns = [
 
     path('', include('home.urls')),  # 홈 화면 앱 추가# 기본 URL
     path('bible/', include('bibleview.urls')),  # BibleView 앱 URL 연결
+    path('kakao/', include('kakao.urls')),  # kAKAO 앱 URL 연결
 ]

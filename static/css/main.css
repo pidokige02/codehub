@@ -14,6 +14,7 @@ h1 {
 .navbar .menu {
   display: flex;
   gap: 15px;
+  position: relative;  /* 드롭다운 포지셔닝 기준 */
 }
 
 .navbar .menu a {
@@ -24,4 +25,38 @@ h1 {
 
 .navbar .menu a:hover {
     color: #007bff;
+}
+
+/* ✅ 드롭다운 관련 추가 */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;  /* 아래쪽으로 표시 */
+  left: 0;
+  background-color: #fff;
+  min-width: 160px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  z-index: 1000;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.dropdown-content a {
+  padding: 10px 15px;
+  display: block;
+  color: #333;
+  text-decoration: none;
+}
+
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+  color: #007bff;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
 }
