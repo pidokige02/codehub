@@ -139,6 +139,7 @@ def bible_list(request, book, chapter):
 
     paginated_chapters = get_chapter_pagination(total_chapters, chapter)
 
+
     return render(request, "bibleview/bible_list.html", {
         "book": book,
         "chapter": chapter,
@@ -149,3 +150,82 @@ def bible_list(request, book, chapter):
         "books": books,  # 책 목록 추가
     })
 
+
+from django.http import JsonResponse
+
+def bible_api(request, book, chapter):
+
+    # GET 요청에서 선택한 성경 버전 가져오기 (기본값: 첫 번째 버전)
+    version_code = request.GET.get("version_code", None)
+
+    # 성경 버전이 유효한지 확인하고, 없으면 기본값 설정
+    if version_code:
+        version = BibleVersion.objects.filter(code=version_code).first()
+    else:
+        version = BibleVersion.objects.first()
+
+    if not version:
+        return JsonResponse({"error": "성경 버전 데이터가 없습니다."}, status=400)
+
+    version_code = version.code  # 유효한 version_code 사용
+
+
+    total_chapters = list(BibleVerse.objects.filter(version=version, book=book)
+                          .values_list("chapter", flat=True)
+                          .distinct()
+                          .order_by("chapter"))
+
+
+    if not total_chapters:
+        return JsonResponse({"error": f"{book}에 대한 데이터가 없습니다."}, status=404)
+
+    # `chapter`가 정수인지 확인하고, 존재하는 장인지 검증
+    try:
+        chapter = int(chapter)
+        if chapter not in total_chapters:
+            return JsonResponse({"error": f"{book}에는 {chapter}장이 존재하지 않습니다."}, status=400)
+    except ValueError:
+        return JsonResponse({"error": "잘못된 장 번호입니다."}, status=400)
+
+    # 선택한 버전, 책, 장에 해당하는 구절 가져오기
+    # verses = list(BibleVerse.objects.filter(version=version, book=book, chapter=chapter)
+    #               .order_by("verse").values("verse", "text"))
+    verses = list(BibleVerse.objects.filter(version=version, book=book, chapter=chapter)
+                  .order_by("verse").values("verse", "text"))
+
+    # 모든 책 목록 가져오기
+    books = list(BibleVerse.objects.filter(version=version)
+                 .values_list("book", flat=True).distinct())
+
+    versions = list(BibleVersion.objects.values("code", "name"))
+
+
+    def get_chapter_pagination(chapters, current_chapter):
+        max_display = 10
+        if len(chapters) <= max_display:
+            return chapters
+        result = []
+        first, last = chapters[0], chapters[-1]
+        result.append(first)
+        if current_chapter > 6:
+            result.append("...")
+        for num in range(current_chapter - 4, current_chapter + 5):
+            if first < num < last:
+                result.append(num)
+        if current_chapter < last - 5:
+            result.append("...")
+        result.append(last)
+        return result
+
+    paginated_chapters = get_chapter_pagination(total_chapters, chapter)
+
+
+    return JsonResponse({
+        "book": book,
+        "chapter": chapter,
+        "verses": verses,
+        "total_chapters": paginated_chapters,
+        "version_code": version_code,
+        "versions": versions,
+        "books": books,
+    })

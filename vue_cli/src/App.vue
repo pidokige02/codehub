@@ -4,12 +4,13 @@
       <div class="menu">
         <router-link to="/">Home</router-link>
 
-        <!-- <div class="dropdown">
-          <router-link :to="{ name: 'BibleView', params: { book: 'Genesis', chapter: 1 } }">Bible</router-link>
+        <div class="dropdown">
+          <a href="#">Bible</a>
           <div class="dropdown-content">
+            <router-link :to="{ name: 'BibleView', params: { book: 'Genesis', chapter: 1 } }">BibleView</router-link>
             <router-link to="/bible/upload">Upload</router-link>
           </div>
-        </div> -->
+        </div>
 
         <div class="dropdown">
           <a href="#">Kakao</a>

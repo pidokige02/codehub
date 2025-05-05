@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import BibleView from '../views/BibleView.vue'
 import KakaoSearch from '../views/KakaoSearchView.vue'
 
 const routes = [
@@ -11,6 +12,12 @@ const routes = [
   {
     path: '/kakao/search/book',
     component: KakaoSearch
+  },
+  {
+    path: '/bible/apiview/:book/:chapter',
+    name: 'BibleView',
+    component: BibleView,
+    props: true
   },
   {
     path: '/about',
