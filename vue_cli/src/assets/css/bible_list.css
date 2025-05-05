@@ -1,0 +1,66 @@
+.chapter-navigation {
+    display: flex;
+    justify-content: center; /* 전체 네비게이션 중앙 정렬 */
+    align-items: center;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.page-numbers {
+    display: flex;
+    justify-content: center; /* 숫자 중앙 정렬 */
+    align-items: center;
+    gap: 8px; /* 숫자 간격 */
+    flex-wrap: wrap;
+}
+
+.page-link, .current-page, .ellipsis, .nav-button {
+    display: inline-block;
+    padding: 6px 12px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.page-link {
+    border: 1px solid blue;
+    color: blue;
+}
+
+.current-page {
+    background-color: blue;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.ellipsis {
+    color: gray;
+    font-weight: bold;
+    padding: 6px;
+}
+
+.nav-button {
+    font-weight: bold;
+    border: 1px solid blue;
+    padding: 6px 12px;
+    color: blue;
+}
+
+.bible-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+}
+
+.bible-selector select, .bible-selector button {
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
