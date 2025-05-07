@@ -68,6 +68,74 @@ def upload_excel(request):
     return render(request, 'bibleview/upload_excel.html', {'form': form})
 
 
+
+@staff_member_required
+def upload_async_excel(request):
+    if request.method == 'POST':
+        form = ExcelUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            excel_file = form.save()
+            from .tasks import process_excel_file
+            # Celery task 호출
+            process_excel_file.delay(excel_file.file.path)
+            return JsonResponse({'message': '업로드 완료! 처리 중입니다.'})
+    else:
+        form = ExcelUploadForm()
+    return render(request, 'bibleview/upload_excel.html', {'form': form})
+
+
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+
+@csrf_exempt  # Vue에서 CSRF 토큰이 없을 수 있으므로 예외 처리
+# @staff_member_required
+def upload_excel_api(request):
+    if request.method == 'POST':
+        excel_file = request.FILES.get('file')
+        if not excel_file:
+            return JsonResponse({'error': '파일이 필요합니다.'}, status=400)
+
+        df = pd.read_excel(excel_file, header=None)
+
+        version_code = df.iloc[0, 1]
+        version_name = df.iloc[1, 1]
+
+        version, _ = BibleVersion.objects.get_or_create(
+            code=version_code,
+            defaults={'name': version_name}
+        )
+
+        first_book, first_chapter = None, None
+
+        for i in range(2, len(df)):
+            reference, text = df.iloc[i, 0], df.iloc[i, 1]
+            book, chapter, verse = parse_reference(reference)
+
+            if book and chapter and verse:
+                BibleVerse.objects.create(
+                    version=version,
+                    book=book,
+                    chapter=chapter,
+                    verse=verse,
+                    text=text
+                )
+                if first_book is None:
+                    first_book, first_chapter = book, chapter
+
+        if first_book and first_chapter:
+            return JsonResponse({
+                'book': first_book,
+                'chapter': first_chapter,
+                'version_code': version.code
+            })
+        else:
+            return JsonResponse({'error': '유효한 구절이 없습니다.'}, status=400)
+    return JsonResponse({'error': 'POST 요청만 허용됩니다.'}, status=405)
+
+
 from django.shortcuts import render, get_object_or_404
 from bibleview.models import BibleVersion, BibleVerse
 
@@ -153,7 +221,7 @@ def bible_list(request, book, chapter):
 
 from django.http import JsonResponse
 
-def bible_api(request, book, chapter):
+def bible_list_api(request, book, chapter):
 
     # GET 요청에서 선택한 성경 버전 가져오기 (기본값: 첫 번째 버전)
     version_code = request.GET.get("version_code", None)
