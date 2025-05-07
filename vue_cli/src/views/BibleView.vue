@@ -78,7 +78,7 @@ async function fetchBibleData() {
   chapter.value = parseInt(route.params.chapter)
   versionCode.value = route.query.version_code
 
-  const response = await axios.get(`/bible/apiview/${book.value}/${chapter.value}/`, {
+  const response = await axios.get(`/bible/view-api/${book.value}/${chapter.value}/`, {
     params: { version_code: versionCode.value }
   })
   const data = response.data
