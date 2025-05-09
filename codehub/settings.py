@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 KAKAO_API_KEY = os.environ.get("KAKAO_API_KEY")
+YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

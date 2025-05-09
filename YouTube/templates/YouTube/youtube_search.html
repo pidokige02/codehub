@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <style>
+        .box {
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h2>YouTube 검색</h2>
+    <form name="form1" method="post" onsubmit="return false;">
+        {% csrf_token %}
+        <input type="text" id="search_box" placeholder="검색어 입력">
+        <button type="button" onclick="fnGetList();">가져오기</button>
+    </form>
+
+    <div id="get_view"></div>
+    <div id="nav_view"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+            integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+            crossorigin="anonymous"></script>
+
+    <script>
+    function fnGetList(sGetToken) {
+        var $getval = $("#search_box").val();
+
+        if ($getval === "") {
+            alert("검색어를 입력하세요.");
+            $("#search_box").focus();
+            return;
+        }
+
+        $("#get_view").empty();
+        $("#nav_view").empty();
+
+        var sTargetUrl = "/YouTube/api/search/?query=" + encodeURIComponent($getval);
+        if (sGetToken) {
+            sTargetUrl += "&pageToken=" + sGetToken;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: sTargetUrl,
+            dataType: "json",
+            success: function(jdata) {
+                if (!jdata.items) {
+                    $("#get_view").append("<p>검색 결과가 없습니다.</p>");
+                    return;
+                }
+
+                $(jdata.items).each(function() {
+                    var videoId = this.id.videoId;
+                    var title = this.snippet.title;
+
+                    $("#get_view").append(
+                        '<p class="box"><a href="https://youtu.be/' + videoId + '" target="_blank">' +
+                        '<span>' + title + '</span></a></p>'
+                    );
+
+                    for (let i = 0; i <= 3; i++) {
+                        $("#get_view").append(
+                            '<img class="box" src="https://img.youtube.com/vi/' + videoId + '/' + i + '.jpg" alt="thumbnail-' + i + '">'
+                        );
+                    }
+
+                    $("#get_view").append(
+                        '<img class="box" src="https://img.youtube.com/vi/' + videoId + '/default.jpg" alt="default">' +
+                        '<img class="box" src="https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg" alt="hqdefault">'
+                    );
+                });
+
+                if (jdata.prevPageToken) {
+                    $("#nav_view").append('<a href="javascript:fnGetList(\'' + jdata.prevPageToken + '\');">&lt;이전페이지&gt;</a>');
+                }
+
+                if (jdata.nextPageToken) {
+                    $("#nav_view").append('<a href="javascript:fnGetList(\'' + jdata.nextPageToken + '\');">&lt;다음페이지&gt;</a>');
+                }
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+                alert("서버 요청 중 오류가 발생했습니다.");
+            }
+        });
+    }
+    </script>
+{% endblock %}
