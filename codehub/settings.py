@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'bibleview',
     'kakao',
     'YouTube',
+    'Azure',
+    'google'
 ]
 
 MIDDLEWARE = [
