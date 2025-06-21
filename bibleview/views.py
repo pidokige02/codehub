@@ -1,5 +1,5 @@
 import pandas as pd
-import re
+import re, math
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -7,16 +7,177 @@ from .models import BibleVersion, BibleVerse
 from .forms import ExcelUploadForm
 
 
+combined_to_korean_books = {
+    # 한글 약어 → 한글 전체
+    "창": "창세기",
+    "출": "출애굽기",
+    "레": "레위기",
+    "민": "민수기",
+    "신": "신명기",
+    "수": "여호수아",
+    "삿": "사사기",
+    "룻": "룻기",
+    "삼상": "사무엘상",
+    "삼하": "사무엘하",
+    "왕상": "열왕기상",
+    "왕하": "열왕기하",
+    "대상": "역대상",
+    "대하": "역대하",
+    "스": "에스라",
+    "느": "느헤미야",
+    "에": "에스더",
+    "욥": "욥기",
+    "시": "시편",
+    "잠": "잠언",
+    "전": "전도서",
+    "아": "아가",
+    "사": "이사야",
+    "렘": "예레미야",
+    "애": "예레미야 애가",
+    "겔": "에스겔",
+    "단": "다니엘",
+    "호": "호세아",
+    "욜": "요엘",
+    "암": "아모스",
+    "옵": "오바댜",
+    "욘": "요나",
+    "미": "미가",
+    "나": "나훔",
+    "합": "하박국",
+    "습": "스바냐",
+    "학": "학개",
+    "슥": "스가랴",
+    "말": "말라기",
+    "마": "마태복음",
+    "막": "마가복음",
+    "눅": "누가복음",
+    "요": "요한복음",
+    "행": "사도행전",
+    "롬": "로마서",
+    "고전": "고린도전서",
+    "고후": "고린도후서",
+    "갈": "갈라디아서",
+    "엡": "에베소서",
+    "빌": "빌립보서",
+    "골": "골로새서",
+    "살전": "데살로니가전서",
+    "살후": "데살로니가후서",
+    "딤전": "디모데전서",
+    "딤후": "디모데후서",
+    "딛": "디도서",
+    "몬": "빌레몬서",
+    "히": "히브리서",
+    "약": "야고보서",
+    "벧전": "베드로전서",
+    "벧후": "베드로후서",
+    "요일": "요한일서",
+    "요이": "요한이서",
+    "요삼": "요한삼서",
+    "유": "유다서",
+    "계": "요한계시록",
+
+    # 영어 → 한글 전체
+    "Genesis": "창세기",
+    "Exodus": "출애굽기",
+    "Leviticus": "레위기",
+    "Numbers": "민수기",
+    "Deuteronomy": "신명기",
+    "Joshua": "여호수아",
+    "Judges": "사사기",
+    "Ruth": "룻기",
+    "1 Samuel": "사무엘상",
+    "2 Samuel": "사무엘하",
+    "1 Kings": "열왕기상",
+    "2 Kings": "열왕기하",
+    "1 Chronicles": "역대상",
+    "2 Chronicles": "역대하",
+    "Ezra": "에스라",
+    "Nehemiah": "느헤미야",
+    "Esther": "에스더",
+    "Job": "욥기",
+    "Psalms": "시편",
+    "Psalm": "시편",
+    "Proverbs": "잠언",
+    "Ecclesiastes": "전도서",
+    "Song of Solomon": "아가",
+    "Isaiah": "이사야",
+    "Jeremiah": "예레미야",
+    "Lamentations": "예레미야 애가",
+    "Ezekiel": "에스겔",
+    "Daniel": "다니엘",
+    "Hosea": "호세아",
+    "Joel": "요엘",
+    "Amos": "아모스",
+    "Obadiah": "오바댜",
+    "Jonah": "요나",
+    "Micah": "미가",
+    "Nahum": "나훔",
+    "Habakkuk": "하박국",
+    "Zephaniah": "스바냐",
+    "Haggai": "학개",
+    "Zechariah": "스가랴",
+    "Malachi": "말라기",
+    "Matthew": "마태복음",
+    "Mark": "마가복음",
+    "Luke": "누가복음",
+    "John": "요한복음",
+    "Acts": "사도행전",
+    "Romans": "로마서",
+    "1 Corinthians": "고린도전서",
+    "2 Corinthians": "고린도후서",
+    "Galatians": "갈라디아서",
+    "Ephesians": "에베소서",
+    "Philippians": "빌립보서",
+    "Colossians": "골로새서",
+    "1 Thessalonians": "데살로니가전서",
+    "2 Thessalonians": "데살로니가후서",
+    "1 Timothy": "디모데전서",
+    "2 Timothy": "디모데후서",
+    "Titus": "디도서",
+    "Philemon": "빌레몬서",
+    "Hebrews": "히브리서",
+    "James": "야고보서",
+    "1 Peter": "베드로전서",
+    "2 Peter": "베드로후서",
+    "1 John": "요한일서",
+    "2 John": "요한이서",
+    "3 John": "요한삼서",
+    "Jude": "유다서",
+    "Revelation": "요한계시록"
+}
+
 def parse_reference(reference):
     """
-    'Genesis 1:1' 형태의 문자열을 분리하여 book, chapter, verse를 추출하는 함수.
+    성경 참조 문자열을 파싱하여 (한글 전체 책 이름, 장, 절)을 반환
+    예) '3 John 1:2', '고전13:4', '요일 4:8'
     """
-    match = re.match(r'([\w\s]+)\s(\d+):(\d+)', str(reference))
+
+    if pd.isna(reference):
+        print ("pd.isna in parse_reference", reference)
+        return None, None, None
+
+    reference = reference.strip()
+
+    # 우선 숫자 + 영어 책이름 처리 (e.g., '3 John', '1 Samuel' 등)
+    match = re.match(r'(\d\s*\w+(?:\s\w+)*)\s+(\d+):(\d+)', reference)
+
     if match:
-        book = match.group(1).strip()  # 'Genesis'
-        chapter = int(match.group(2))  # 1
-        verse = int(match.group(3))  # 1
-        return book, chapter, verse
+        raw_book = match.group(1).replace("  ", " ").strip()  # '3 John' 등
+        chapter = int(match.group(2))
+        verse = int(match.group(3))
+        full_book = combined_to_korean_books.get(raw_book, f"알 수 없는 책({raw_book})")
+        return full_book, chapter, verse
+
+    # 일반 한글/영문 책 이름 (숫자 없는) 처리 (e.g., '창 1:1', 'John 3:16', '요한복음 3:16')
+    match = re.match(r'([^\d:]+)\s*(\d+):(\d+)', reference)
+    if match:
+        raw_book = match.group(1).strip()
+        chapter = int(match.group(2))
+        verse = int(match.group(3))
+        full_book = combined_to_korean_books.get(raw_book, f"알 수 없는 책({raw_book})")
+        return full_book, chapter, verse
+
+    print ("None, None, None in parse_reference")
     return None, None, None
 
 @staff_member_required
@@ -33,12 +194,13 @@ def upload_excel(request):
             # 1~2번째 행: 성경 번역본 정보 저장
             version_code = df.iloc[0, 1]  # 예: "ERV"
             version_name = df.iloc[1, 1]  # 예: "English Revised Version"
-
+            print("jinha", version_code, version_name)
             # 번역본이 이미 존재하는지 확인 후 저장
             version, created = BibleVersion.objects.get_or_create(
                 code=version_code,
                 defaults={'name': version_name}
             )
+            print("jinha1", version, created)
 
             # 3번째 행부터 성경 구절 저장
             first_book, first_chapter = None, None  # 첫 번째 저장된 구절 정보
@@ -46,6 +208,14 @@ def upload_excel(request):
             for i in range(2, len(df)):  # 0-based index → 2부터 시작
                 reference, text = df.iloc[i, 0], df.iloc[i, 1]
                 book, chapter, verse = parse_reference(reference)
+
+                if not (book and chapter and verse):
+                    print(f"⚠️ 유효하지 않은 구절 건너뜀 → {reference}")
+                    continue
+
+                if "알 수 없는 책" in book:
+                    print(f"⚠️ 알 수 없는 책 이름 → {reference}")
+                    continue
 
                 if book and chapter and verse:
                     BibleVerse.objects.create(

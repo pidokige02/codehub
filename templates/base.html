@@ -13,7 +13,7 @@
         <div class="dropdown">
           <a href="#">Bible</a>
           <div class="dropdown-content">
-            <a href="{% url 'bibleview:bible_list' book='Genesis' chapter=1 %}">BibleView</a>
+            <a href="{% url 'bibleview:bible_list' book='창세기' chapter=1 %}">BibleView</a>
             <a href="/bible/upload/">Upload</a>
             <a href="/bible/upload-async/">Async-Upload</a>
           </div>
@@ -30,6 +30,20 @@
           <a href="#">YouTube</a>
           <div class="dropdown-content">
             <a href="/YouTube/search/">API Test</a>
+          </div>
+        </div>
+
+        <div class="dropdown">
+          <a href="#">Azure</a>
+          <div class="dropdown-content">
+            <a href="/Azure/voice/">Voice Test</a>
+          </div>
+        </div>
+
+        <div class="dropdown">
+          <a href="#">Google</a>
+          <div class="dropdown-content">
+            <a href="/Google/Gemini/">Gemini Test</a>
           </div>
         </div>
 
