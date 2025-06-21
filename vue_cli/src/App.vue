@@ -7,7 +7,7 @@
         <div class="dropdown">
           <a href="#">Bible</a>
           <div class="dropdown-content">
-            <router-link :to="{ name: 'BibleView', params: { book: 'Genesis', chapter: 1 } }">BibleView</router-link>
+            <router-link :to="{ name: 'BibleView', params: { book: '창세기', chapter: 1 } }">BibleView</router-link>
             <router-link to="/bible/upload">Upload</router-link>
           </div>
         </div>

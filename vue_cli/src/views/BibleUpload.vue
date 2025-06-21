@@ -38,7 +38,7 @@ async function handleUpload() {
     })
     message.value = '업로드 성공! 리디렉션 중...'
     // 네임드 라우터로 이동
-    router.push({ name: 'BibleView', params: { book: 'Genesis', chapter: 1 } })
+    router.push({ name: 'BibleView', params: { book: '창세기', chapter: 1 } })
 
   } catch (error) {
     message.value = '업로드 실패: ' + (error.response?.data?.error || error.message)

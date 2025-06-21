@@ -284,6 +284,14 @@ def upload_excel_api(request):
             reference, text = df.iloc[i, 0], df.iloc[i, 1]
             book, chapter, verse = parse_reference(reference)
 
+            if not (book and chapter and verse):
+                print(f"⚠️ 유효하지 않은 구절 건너뜀 → {reference}")
+                continue
+            
+            if "알 수 없는 책" in book:
+                print(f"⚠️ 알 수 없는 책 이름 → {reference}")
+                continue
+
             if book and chapter and verse:
                 BibleVerse.objects.create(
                     version=version,
