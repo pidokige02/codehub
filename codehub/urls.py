@@ -24,4 +24,5 @@ urlpatterns = [
     path('bible/', include('bibleview.urls')),  # BibleView 앱 URL 연결
     path('kakao/', include('kakao.urls')),  # kAKAO 앱 URL 연결
     path('YouTube/', include('YouTube.urls')),  # YouTube 앱 URL 연결
+    path('Google/', include('googleapp.urls')),  # Google 앱 URL 연결
 ]

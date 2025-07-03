@@ -17,7 +17,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 KAKAO_API_KEY = os.environ.get("KAKAO_API_KEY")
+if not KAKAO_API_KEY:
+    raise ValueError("API key not found. Please set KAKAO_API_KEY in .env file.")
+
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
+if not YOUTUBE_API_KEY:
+    raise ValueError("API key not found. Please set YOUTUBE_API_KEY in .env file.")
+
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
+    raise ValueError("API key not found. Please set GOOGLE_API_KEY in .env file.")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,7 +60,7 @@ INSTALLED_APPS = [
     'kakao',
     'YouTube',
     'Azure',
-    'google'
+    'googleapp',
 ]
 
 MIDDLEWARE = [

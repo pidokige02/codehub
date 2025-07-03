@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/gemini.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+  <div id="chat-log" class="chat-log">
+    {% if history %}
+      {% for item in history %}
+        <div class="user-msg">🧑 {{ item.question }}</div>
+        <div class="bot-msg">🤖 {{ item.answer }}</div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <form method="post" id="chat-form">
+    {% csrf_token %}
+    <input type="text" name="question" id="user-input" placeholder="메시지를 입력하세요..." autocomplete="off" value="">
+    <button type="submit">전송</button>
+  </form>
+</div>
+{% endblock %}
