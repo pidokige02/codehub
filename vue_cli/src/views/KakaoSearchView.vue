@@ -6,13 +6,18 @@
 
       <div id="bookdata">
         <p v-if="error">{{ error }}</p>
-        <div v-if="book">
-          <strong>{{ book.title }}</strong><br />
-          <img :src="book.thumbnail" alt="책 이미지" /><br />
-          <p>{{ book.contents }}</p>
+        <!-- 여러 책 결과를 반복 렌더링 -->
+        <div v-if="books.length > 0">
+          <div v-for="(book, index) in books" :key="index" class="book-card">
+            <strong>{{ book.title }}</strong><br />
+            <img v-if="book.thumbnail" :src="book.thumbnail" alt="책 이미지" /><br />
+            <p>{{ book.contents }}</p>
+            <p><a :href="book.url" target="_blank">자세히 보기</a></p>
+          </div>
         </div>
       </div>
     </div>
+
   </template>
 
   <script>
@@ -23,14 +28,14 @@
     data() {
       return {
         query: '',
-        book: null,
+        books: [],   // 단일 객체 대신 배열
         error: ''
       }
     },
     methods: {
       async searchBook() {
         this.error = ''
-        this.book = null
+        this.books = []
 
         if (!this.query) {
           this.error = '책 제목을 입력하세요.'
@@ -45,7 +50,7 @@
           if (response.data.documents.length === 0) {
             this.error = '검색 결과가 없습니다.'
           } else {
-            this.book = response.data.documents[0]
+            this.books = response.data.documents
           }
         } catch (err) {
           this.error = '오류가 발생했습니다.'
