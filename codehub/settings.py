@@ -43,6 +43,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
+    "localhost",
     '3.39.38.168',
     'codehub.hobbycoding.shop',
 ]
