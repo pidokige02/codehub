@@ -26,12 +26,20 @@
             return;
           }
 
-          const book = msg.documents[0];
-          $("#bookdata").html(`
-            <strong>${book.title}</strong><br>
-            <img src="${book.thumbnail}" alt="책 이미지"><br>
-            <p>${book.contents}</p>
-          `);
+          // 여러 개 결과 표시
+          let html = "";
+          msg.documents.forEach(function(book) {
+            html += `
+                    <div style="margin-bottom:20px; border-bottom:1px solid #ddd; padding-bottom:10px;">
+                        <strong>${book.title}</strong><br>
+                        ${book.thumbnail ? `<img src="${book.thumbnail}" alt="책 이미지"><br>` : ""}
+                        <p>${book.contents}</p>
+                        <p><a href="${book.url}" target="_blank">자세히 보기</a></p>
+                    </div>
+                `;
+          });
+
+          $("#bookdata").html(html);
         })
         .fail(function () {
           $("#bookdata").html("<p>오류가 발생했습니다.</p>");
