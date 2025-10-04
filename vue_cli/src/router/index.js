@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import BibleView from '../views/BibleView.vue'
 import BibleUpload from '../views/BibleUpload.vue'
 import KakaoSearch from '../views/KakaoSearchView.vue'
+import YouTubeSearch from '../views/YouTubeSearch.vue'
 
 const routes = [
   {
@@ -13,6 +14,10 @@ const routes = [
   {
     path: '/kakao/search/book',
     component: KakaoSearch
+  },
+  {
+    path: '/YouTube/search',
+    component: YouTubeSearch
   },
   {
     path: '/bible/view/:book/:chapter',

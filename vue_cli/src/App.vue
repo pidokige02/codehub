@@ -19,6 +19,13 @@
           </div>
         </div>
 
+        <div class="dropdown">
+          <a href="#">YouTube</a>
+          <div class="dropdown-content">
+            <router-link to="/YouTube/search/">API Test</router-link>
+          </div>
+        </div>
+
         <router-link to="/about">About</router-link>
       </div>
     </div>
