@@ -7,6 +7,8 @@ from django.conf import settings
 @csrf_exempt  # 개발 중에는 편의상 사용, 배포 전에는 주의
 def book_search(request):
     query = request.GET.get('query', '')
+    page = int(request.GET.get("page", 1))   # 기본 1페이지
+    size = int(request.GET.get("size", 10))  # 기본 10개
 
     if not query:
         return JsonResponse({'error': 'No query provided'}, status=400)
@@ -17,7 +19,9 @@ def book_search(request):
     }
     params = {
         "target": "title",
-        "query": query
+        "query": query,
+        "page": page,
+        "size": size,
     }
 
     try:
