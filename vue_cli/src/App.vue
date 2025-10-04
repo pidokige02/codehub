@@ -15,7 +15,7 @@
         <div class="dropdown">
           <a href="#">Kakao</a>
           <div class="dropdown-content">
-            <router-link to="/kakao/search/book">API Test</router-link>
+            <router-link to="/kakao/search/book">book query</router-link>
           </div>
         </div>
 
