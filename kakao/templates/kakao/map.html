@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}  <!-- ✅ static 태그 반드시 추가 -->
+
+{% block extra_head %}
+  <!-- ✅ CSS 파일 불러오기 -->
+  <link rel="stylesheet" href="{% static 'css/map.css' %}">
+  <script src="https://kit.fontawesome.com/a2e0e6d6e1.js" crossorigin="anonymous"></script>
+
+{% endblock %}
+
+{% block content %}
+  <div class="kakao-map-container">
+    <!-- 왼쪽 패널 -->
+    <div class="kakao-map-sidebar">
+      <div class="kakao-map-header">
+        <h1>kakao<span style="font-weight:700;">map</span></h1>
+        <label><input type="radio" checked> 현 지도 내 장소검색</label>
+      </div>
+
+      <div class="kakao-map-search">
+        <input id="keyword" type="text" placeholder="장소, 주소, 버스 검색">
+        <button id="search">검색</button>
+      </div>
+
+      <!-- 탭 메뉴 -->
+      <div class="kakao-map-tabs">
+        <div class="kakao-map-tab active" data-tab="search">검색</div>
+        <div class="kakao-map-tab" data-tab="route">길찾기</div>
+        <div class="kakao-map-tab" data-tab="bus">버스</div>
+        <div class="kakao-map-tab" data-tab="subway">지하철</div>
+        <div class="kakao-map-tab" data-tab="my">MY</div>
+      </div>
+
+      <!-- 탭 콘텐츠 -->
+      <div class="kakao-map-tab-content" id="tab-search">
+        🔍 장소를 검색해보세요.
+      </div>
+      <div class="kakao-map-tab-content" id="tab-route" style="display:none;">
+        🚗 도착지를 입력하세요.
+      </div>
+      <div class="kakao-map-tab-content" id="tab-bus" style="display:none;">
+        🚌 버스 노선을 조회할 수 있습니다.
+      </div>
+      <div class="kakao-map-tab-content" id="tab-subway" style="display:none;">
+        🚇 지하철 노선도를 확인하세요.
+      </div>
+      <div class="kakao-map-tab-content" id="tab-my" style="display:none;">
+        ⭐ 즐겨찾기 장소를 저장하세요.
+      </div>
+    </div>
+
+    <!-- 오른쪽 지도 -->
+    <div class="kakao-map-area" id="map"></div>
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_key }}&libraries=services&autoload=false"></script>
+
+  <script>
+    // SDK 로드가 완료된 후에 실행되도록 보장
+    kakao.maps.load(function() {
+      const mapContainer = document.getElementById('map');
+      const mapOption = {
+        center: new kakao.maps.LatLng(37.504398, 127.011081),
+        level: 4
+      };
+      const map = new kakao.maps.Map(mapContainer, mapOption);
+      const ps = new kakao.maps.services.Places();
+      const infowindow = new kakao.maps.InfoWindow({zIndex:1});
+
+      $("#search").click(function() {
+        const keyword = $("#keyword").val();
+        if (!keyword.trim()) {
+          $("#resultList").html("<p>검색어를 입력해주세요.</p>");
+          return;
+        }
+        ps.keywordSearch(keyword, placesSearchCB);
+      });
+
+      function placesSearchCB(data, status) {
+        const listEl = $("#resultList");
+        listEl.empty();
+
+        if (status === kakao.maps.services.Status.OK) {
+          const bounds = new kakao.maps.LatLngBounds();
+          data.forEach(function(place) {
+            const item = $(`<div style="padding:8px; border-bottom:1px solid #ddd; cursor:pointer;">
+                              <strong>${place.place_name}</strong><br>
+                              <small>${place.address_name}</small>
+                            </div>`);
+            item.on("click", function() {
+              const pos = new kakao.maps.LatLng(place.y, place.x);
+              map.setCenter(pos);
+              infowindow.setContent(`<div style="padding:5px;">${place.place_name}</div>`);
+              infowindow.open(map, new kakao.maps.Marker({position: pos}));
+            });
+            listEl.append(item);
+            bounds.extend(new kakao.maps.LatLng(place.y, place.x));
+          });
+          map.setBounds(bounds);
+        } else {
+          listEl.html("<p>검색 결과가 없습니다.</p>");
+        }
+      }
+      // 탭 전환
+      $(".kakao-map-tab").click(function() {
+        $(".kakao-map-tab").removeClass("active");
+        $(this).addClass("active");
+
+        $(".kakao-map-tab-content").hide();
+        const target = $(this).data("tab");
+        $("#tab-" + target).show();
+      });
+    });
+  </script>
+{% endblock %}
