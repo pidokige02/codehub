@@ -20,6 +20,11 @@ KAKAO_API_KEY = os.environ.get("KAKAO_API_KEY")
 if not KAKAO_API_KEY:
     raise ValueError("API key not found. Please set KAKAO_API_KEY in .env file.")
 
+KAKAO_JS_KEY = os.environ.get("KAKAO_JS_KEY")
+if not KAKAO_JS_KEY:
+    raise ValueError("API key not found. Please set KAKAO_JS_KEY in .env file.")
+
+
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
 if not YOUTUBE_API_KEY:
     raise ValueError("API key not found. Please set YOUTUBE_API_KEY in .env file.")
