@@ -16,9 +16,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-KAKAO_API_KEY = os.environ.get("KAKAO_API_KEY")
-if not KAKAO_API_KEY:
-    raise ValueError("API key not found. Please set KAKAO_API_KEY in .env file.")
+KAKAO_RESTAPI_KEY = os.environ.get("KAKAO_RESTAPI_KEY")
+if not KAKAO_RESTAPI_KEY:
+    raise ValueError("API key not found. Please set KAKAO_RESTAPI_KEY in .env file.")
 
 KAKAO_JS_KEY = os.environ.get("KAKAO_JS_KEY")
 if not KAKAO_JS_KEY:
