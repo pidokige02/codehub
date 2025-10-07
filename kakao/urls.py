@@ -8,4 +8,6 @@ app_name = 'kakao'  # URL 네임스페이스 설정
 urlpatterns = [
     path('api/book_search/', views.book_search, name='book_search'),
     path('search/book/', TemplateView.as_view(template_name="kakao/book_search.html")),
+    # path('api/map_search/', views.map_search, name='map_search'),
+    path('map/', views.kakao_map, name='kakao_map'),
 ]
