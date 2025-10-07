@@ -10,4 +10,5 @@ urlpatterns = [
     path('search/book/', TemplateView.as_view(template_name="kakao/book_search.html")),
     # path('api/map_search/', views.map_search, name='map_search'),
     path('map/', views.kakao_map, name='kakao_map'),
+    path('api/route/', views.api_route, name='api_route'),  # POST endpoint
 ]
