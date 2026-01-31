@@ -63,3 +63,43 @@
     padding: 5px 10px;
     font-size: 14px;
 }
+
+.parallel-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;                 /* "대역" 텍스트와 select 간격 */
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap;      /* 줄바꿈 방지 */
+}
+
+.bible-parallel {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.bible-parallel th {
+    text-align: center;
+    padding: 10px;
+    background: #f5f5f5;
+    border-bottom: 2px solid #ddd;
+}
+
+.bible-parallel td {
+    width: 50%;
+    vertical-align: top;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    line-height: 1.6;
+}
+
+.bible-parallel sup {
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+.empty-verse {
+    color: #aaa;
+    font-style: italic;
+}

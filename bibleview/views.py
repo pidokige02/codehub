@@ -287,7 +287,7 @@ def upload_excel_api(request):
             if not (book and chapter and verse):
                 print(f"⚠️ 유효하지 않은 구절 건너뜀 → {reference}")
                 continue
-            
+
             if "알 수 없는 책" in book:
                 print(f"⚠️ 알 수 없는 책 이름 → {reference}")
                 continue
@@ -320,6 +320,7 @@ from bibleview.models import BibleVersion, BibleVerse
 def bible_list(request, book, chapter):
     # GET 요청에서 선택한 성경 버전 가져오기 (기본값: 첫 번째 버전)
     version_code = request.GET.get("version_code", None)
+    parallel_code = request.GET.get("parallel_code", None)
 
     # 성경 버전이 유효한지 확인하고, 없으면 기본값 설정
     if version_code:
@@ -331,6 +332,11 @@ def bible_list(request, book, chapter):
         return render(request, "bibleview/error.html", {"error": "성경 버전 데이터가 없습니다."})
 
     version_code = version.code  # 유효한 version_code 사용
+
+    # 병렬 성경 (있을 수도 있고 없을 수도 있음)
+    parallel_version = None
+    if parallel_code:
+        parallel_version = BibleVersion.objects.filter(code=parallel_code).first()
 
     # 해당 책의 모든 장 번호 가져오기
     total_chapters = list(BibleVerse.objects.filter(version=version, book=book)
@@ -350,10 +356,39 @@ def bible_list(request, book, chapter):
         return render(request, "bibleview/error.html", {"error": "잘못된 장 번호입니다."})
 
     # 선택한 버전, 책, 장에 해당하는 구절 가져오기
-    verses = BibleVerse.objects.filter(version=version, book=book, chapter=chapter).order_by("verse")
+    verses = BibleVerse.objects.filter(
+        version=version, book=book, chapter=chapter
+    ).order_by("verse")
+
+    # ==========================
+    # 🔥 병렬 성경 처리
+    # ==========================
+    parallel_verses_map = {}
+    if parallel_version:
+        parallel_verses = BibleVerse.objects.filter(
+            version=parallel_version,
+            book=book,
+            chapter=chapter
+        ).order_by("verse")
+
+        # verse 번호 기준으로 dict 구성
+        parallel_verses_map = {
+            v.verse: v.text for v in parallel_verses
+        }
+    # UI용 병합 데이터
+    merged_verses = []
+    for v in verses:
+        merged_verses.append({
+            "verse": v.verse,
+            "left": v.text,
+            "right": parallel_verses_map.get(v.verse)  # 없을 수도 있음
+        })
 
     # 모든 책 목록 가져오기
-    books = list(BibleVerse.objects.filter(version=version).values_list("book", flat=True).distinct())
+    books = list(BibleVerse.objects.filter(version=version)
+                 .values_list("book", flat=True)
+                 .distinct()
+                )
 
     # 페이지네이션을 위한 챕터 목록 만들기
     def get_chapter_pagination(chapters, current_chapter):
@@ -389,11 +424,13 @@ def bible_list(request, book, chapter):
     return render(request, "bibleview/bible_list.html", {
         "book": book,
         "chapter": chapter,
-        "verses": verses,
+        "verses": merged_verses,
         "total_chapters": paginated_chapters,  # UI에서 축약된 챕터 리스트 사용
         "version_code": version_code,
+        "parallel_code": parallel_code,
         "versions": BibleVersion.objects.all(),  # 템플릿에서 버전 선택 가능하도록 전달
         "books": books,  # 책 목록 추가
+        "is_parallel": bool(parallel_version),
     })
 
 
